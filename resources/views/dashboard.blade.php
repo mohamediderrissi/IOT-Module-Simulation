@@ -186,9 +186,9 @@ function checkAnychanges() {
                 document.getElementById("loaderId").style.display = 'none';
             }, 4000);
             updateView();
-            waitBeforeCheck(32000);
-        } else { // We check for changes every 20 seconds.
-            waitBeforeCheck(32000);
+            waitBeforeCheck(29000);
+        } else { // We check for changes every 30 seconds.
+            waitBeforeCheck(29000);
         }
     }
     oReq.send();
@@ -238,5 +238,5 @@ function updateView() {
         }
     }
 }
-waitBeforeCheck(32000);
+waitBeforeCheck(29000);
         </script>

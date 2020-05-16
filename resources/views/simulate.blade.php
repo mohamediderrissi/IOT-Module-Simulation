@@ -113,16 +113,7 @@
 
     .add .tooltiptext {
         visibility: hidden;
-        /* width: 20px; */
-        /* background-color: black; */
         color: black;
-        /* text-align: center; */
-        /* border-radius: 6px;
-										padding: 5px 0; */
-
-        /* Position the tooltip
-										position: absolute;
-										z-index: 1; */
     }
 
     .add:hover .tooltiptext {
@@ -329,10 +320,11 @@ var unselectedModules = [];
 for (var k = 0; k < modules.length; k++) {
     unselectedModules.push(modules[k].name);
 }
-
-var data = []; // this variable contains list of simulations, each simulation is an object contains
-// the name of the module, the action  and the time  { name: "..", action:"..", time:".." }
-
+/**
+*   the variable data is an array that contains list of simulations, each simulation is an object contains
+*   the name of the module, the action  and the time  { name: "..", action:"..", time:".." }
+*/
+var data = [];
 function getUnselectedModules() {
 
     var select_elemet = document.getElementById("selectionModule");
@@ -345,7 +337,7 @@ function getUnselectedModules() {
 
     document.getElementById("col-modules").appendChild(select_elemet);
 
-    // Inser the message Text :
+    // Insert the message Text :
     var e = document.createElement("OPTION");
     e.setAttribute('selected', true);
     var msg = document.createTextNode("Choose A Module");
@@ -389,10 +381,14 @@ addNewSim.onclick = function() {
 
         time.value < "60" ? label_time = time.value + " seconds" : label_time = "1 minute";
         if (action.value == "generate") {
-            label_action = "Generate Value for Module"
+            label_action = "Generate Value for Module";
         }
-        action.value == "on-off" ? label_action = "Switch The Module ON/OFF" : label_action =
-            "Dysfunction of A Variable Of the Module";
+        else if(action.value == "on-off") {
+            label_action = "Switch The Module ON/OFF";
+        }
+        else if(action.value == "variable") {
+            label_action = "Dysfunction of A Variable Of the Module";
+        }
         var row = '<tr>';
         row += '<td>' + module.value + '</td>';
         row += '<td>' + label_action + '</td>';
@@ -452,28 +448,29 @@ function updateView() {
 
 // Method to Send the Simulations and redirect the user :
 document.getElementById("submit-all-btn").onclick = function() {
-    // var timeOfSimulation = 0;
-    // data.forEach(function(e) {
-    //     timeOfSimulation+=parseInt(e.time) * 1000;
-    //     setTimeout(() => {
-    //         sendUpdate(e.name, e.action);
-    //     }, parseInt(e.time) * 1000);
-    // });
-    var last = false;
-    for (let i = 0; i < data.length; i++) {
-        var e = data[i];
-        if (i==data.length-1) {  last=true;  }
+    let maxtimeOfSimulation = 0;
+    data.forEach(function(e,index,data) {
+        if (maxtimeOfSimulation < e.time) { maxtimeOfSimulation=e.time;     }
+        if (index === data.length-1) { console.log(maxtimeOfSimulation); }
         setTimeout(() => {
             sendUpdate(e.name, e.action);
-            if(last==true) { updateNotification();  }
         }, parseInt(e.time) * 1000);
-    }
+    });
 
     document.getElementById('notificationId').style.display = "flex";
 
-    // setTimeout(() => {
-    //            
-    // }, timeOfSimulation-4000);
+    // remove "submit all" button :
+        var submitAll = document.getElementById("submit-all-btn");
+        submitAll.remove();
+
+    // Remove delete buttons :
+    var deletebuttons = document.getElementsByClassName('delete');
+    for(deleteBtn of deletebuttons) {
+         deleteBtn.style.display="none";        
+    }
+
+    // Wait for the Max time of simulation Before update the Notification.
+    setTimeout(() => { updateNotification(); }, maxtimeOfSimulation*1000);
      
 }
 
@@ -481,7 +478,7 @@ function updateNotification() {
     var elm = document.getElementById('notificationId');
     var header = elm.firstElementChild.children[0];
     var section = elm.firstElementChild.children[1];
-    
+
     var headerHtml = '<header class="message-header-success"><p "display:flex;justify-content:space-between;">'
     +'Simulations are Done Successfully'
     +'<img class="ml-2" src="/images/success.svg" style="width: 23px;" alt="success"><span class="close" onclick="closeModal(1)">'
@@ -489,19 +486,16 @@ function updateNotification() {
     +'</header>';
 
     var sectionHtml = '<section>'
-                     +'<div style="display:flex;flex-direction:column;">'
-                     +'<div style="display:flex; align-items: flex-start;">'
-                     +'<img src="/images/success.svg" style="width: 50px; margin-right: 10px" />'
-                     +'<p>You Can Now Close This page If you want.'
-                     +'Click the button to See The Dashbord !</p></div>'
-                     +'<button class="ml-4 seeEffectBtn-success" onclick="window.open(\'/dashboard\', \'_blank\');">See Effects</button>'
-                     +'</div></section>';
+                    +'<div style="display:flex;flex-direction:column;">'
+                    +'<div style="display:flex; align-items: flex-start;">'
+                    +'<img src="/images/success.svg" style="width: 50px; margin-right: 10px" />'
+                    +'<p>You Can Now Close This page If you want.'
+                    +'Click the button to See The Dashbord !</p></div>'
+                    +'<button class="ml-4 seeEffectBtn-success" onclick="window.open(\'/dashboard\', \'_blank\');">See Effects</button>'
+                    +'</div></section>';
     header.innerHTML=headerHtml;
     section.innerHTML=sectionHtml;
-
-    var submitAll = document.getElementById("submit-all-btn");
-    submitAll.parentNode.removeChild(submitAll);
-
+   
 }
 
 function sendUpdate(name, action) {

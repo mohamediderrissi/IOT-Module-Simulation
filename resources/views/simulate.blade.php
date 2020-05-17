@@ -469,6 +469,9 @@ document.getElementById("submit-all-btn").onclick = function() {
          deleteBtn.style.display="none";        
     }
 
+    // Remove "Add Simulation" button : 
+    document.getElementById("new").remove();
+
     // Wait for the Max time of simulation Before update the Notification.
     setTimeout(() => { updateNotification(); }, maxtimeOfSimulation*1000);
      
